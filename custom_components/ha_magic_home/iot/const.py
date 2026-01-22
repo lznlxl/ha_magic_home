@@ -38,7 +38,7 @@ CLOUD_SERVERS_PATH: dict = {
 
 HA_REDIRECT_URL: str = 'http://homeassistant.local:8123'
 
-SUPPORTED_PLATFORMS: list = ['light', 'climate', 'cover']
+SUPPORTED_PLATFORMS: list = ['light', 'climate', 'cover', 'binary_sensor']
 
 #action
 CAPABILITY_MAP: dict[str, str] = {

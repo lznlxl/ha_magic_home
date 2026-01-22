@@ -90,6 +90,22 @@ async def async_get_devices(hass: HomeAssistant, token, cloud_server,
                 res = await response.text()
                 _LOGGER.debug(f"discoverDev:,{res}")
                 discovery = Discovery.parse_raw(res)
+                # DEBUG: detailed capability dump
+                for device in discovery.event.endpoints:
+                    caps = []
+                    for cap in (device.capabilities or []):
+                        caps.append({
+                            "interface": cap.interface,
+                            "actions": [a.name for a in (cap.actions.supported or [])] if cap.actions else [],
+                            "properties": [p.name for p in (cap.properties.supported or [])] if cap.properties else [],
+                        })
+                    _LOGGER.debug(
+                        "endpointId=%s name=%s categories=%s capabilities=%s",
+                        device.endpointId,
+                        device.friendlyName,
+                        device.displayCategories,
+                        caps,
+                    )
                 device_category_map = defaultdict(list)
                 for device in discovery.event.endpoints:
                     device_type = device.displayCategories[0]
