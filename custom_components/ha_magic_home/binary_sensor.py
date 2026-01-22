@@ -2,6 +2,7 @@
 """
 The Ha Magic Home integration binary_sensor File.
 """
+from datetime import timedelta
 import logging
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
@@ -16,6 +17,8 @@ from .iot.common import report_state
 from .iot.const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
+
+SCAN_INTERVAL = timedelta(seconds=1)
 
 
 async def async_setup_entry(

@@ -28,6 +28,18 @@ _LOGGER = logging.getLogger(__name__)
 MIOT_ROOT_PATH: str = path.dirname(path.abspath(__file__))
 
 
+def _cookie_to_dict(cookie: Any) -> dict:
+    if cookie is None:
+        return {}
+    if hasattr(cookie, "model_dump"):
+        return cookie.model_dump()
+    if hasattr(cookie, "dict"):
+        return cookie.dict()
+    if isinstance(cookie, dict):
+        return cookie
+    return {}
+
+
 def gen_absolute_path(relative_path: str) -> str:
     """Generate an absolute path."""
     return path.join(MIOT_ROOT_PATH, relative_path)
@@ -93,8 +105,7 @@ async def control_req(self, prop: str, value: Any) -> int:
     header.name = action
 
     header.interfaceVersion = "2"
-    messageId = uuid.uuid4()
-    header.messageId = messageId
+    header.messageId = str(uuid.uuid4())
 
     payload: dict[str, Any] = {}
     if prop == ATTR_RGB_COLOR:
@@ -118,7 +129,7 @@ async def control_req(self, prop: str, value: Any) -> int:
     control.directive.header = header
     control.directive.endpoint.scope.type = "BearerToken"
     control.directive.endpoint.scope.token = token
-    control.directive.endpoint.cookie = self._cookie
+    control.directive.endpoint.cookie = _cookie_to_dict(self._cookie)
     control.directive.endpoint.endpointId = self.device_id
     control.directive.payload = payload
 
@@ -162,8 +173,7 @@ async def report_state(self) -> tuple[ResponseModel, int]:
     header.name = 'ReportState'
 
     header.interfaceVersion = "2"
-    messageId = uuid.uuid4()
-    header.messageId = messageId
+    header.messageId = str(uuid.uuid4())
 
     config_entry = self.hass.config_entries.async_get_entry(self._entry_id)
     token = config_entry.data.get("access_token")
@@ -173,7 +183,7 @@ async def report_state(self) -> tuple[ResponseModel, int]:
     control.directive.header = header
     control.directive.endpoint.scope.type = "BearerToken"
     control.directive.endpoint.scope.token = token
-    control.directive.endpoint.cookie = self._cookie
+    control.directive.endpoint.cookie = _cookie_to_dict(self._cookie)
     control.directive.endpoint.endpointId = self.device_id
 
     json_data = control.json()
